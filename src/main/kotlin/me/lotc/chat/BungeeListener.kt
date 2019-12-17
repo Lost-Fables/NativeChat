@@ -9,7 +9,7 @@ import me.lotc.chat.channel.Channel
 import me.lotc.chat.command.ModCommand
 import me.lotc.chat.user.chat
 import me.lotc.chat.user.uuid
-import me.lucko.luckperms.LuckPerms
+import net.luckperms.api.LuckPermsProvider
 import net.md_5.bungee.chat.ComponentSerializer
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -71,7 +71,7 @@ object BungeeListener : PluginMessageListener {
                 val sender = BukkitSender(Bukkit.getConsoleSender())
                 handlePluginMessage(channel, intent, sender, msg)
             } else {
-                LuckPerms.getApi().userManager.loadUser(uuid).thenAcceptAsync{
+                LuckPermsProvider.get().userManager.loadUser(uuid).thenAcceptAsync{
                     val sender = ProxiedSender(userName, it)
                     handlePluginMessage(channel, intent, sender, msg)
                 }

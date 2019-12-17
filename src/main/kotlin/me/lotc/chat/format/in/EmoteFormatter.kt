@@ -32,7 +32,7 @@ class EmoteFormatter : InFormatter {
 
             c.forEach { it.color = emoteColor }
             message.transform("\".*?\"", ::quotify)
-            message.transform("((?<=\\s|^)\").*?\$|^.*?(\"(?=\\s|\$))", ::quotify)
+            //message.transform("((?<=\\s|^)\").*?\$|^.*?(\"(?=\\s|\$))", ::quotify)
             val formatUsername = willNamelessEmote || !message.toRawText().startsWith("“")
 
             if(formatUsername) {

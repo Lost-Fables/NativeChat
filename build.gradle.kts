@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "me.lotc"
-version = "1.0.2"
+version = "1.15-R0.1"
 
 repositories {
     /*maven{
@@ -25,12 +25,12 @@ repositories {
 }
 
 dependencies {
-    compileOnly("net.lordofthecraft:OmniscienceAPI:1.0.3")
-    compileOnly("net.lordofthecraft.arche:ArcheCore:3.6")
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.4.0")
-    compileOnly("co.lotc:tythan-bukkit:0.7")
-    compileOnly("me.lucko.luckperms:luckperms-api:4.4")
-    compileOnly("com.destroystokyo.paper:paper-api:1.14.2-R0.1-SNAPSHOT")
+    compileOnly("net.lordofthecraft:OmniscienceAPI:1.15-R0.1")
+    compileOnly("net.lordofthecraft.arche:ArcheCore:1.15-R0.1")
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.5.0-SNAPSHOT")
+    compileOnly("co.lotc:tythan-bukkit:1.15-R0.1")
+    compileOnly("net.luckperms:api:5.0")
+    compileOnly("com.destroystokyo.paper:paper-api:1.15-R0.1-SNAPSHOT")
     compile(kotlin("stdlib-jdk8"))
 }
 

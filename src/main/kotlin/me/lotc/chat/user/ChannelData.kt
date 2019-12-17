@@ -4,8 +4,9 @@ import me.lotc.chat.NativeChat
 import me.lotc.chat.channel.Channel
 import co.lotc.core.bukkit.util.Run
 import me.lotc.chat.ChatManager
-import me.lucko.luckperms.LuckPerms
-import me.lucko.luckperms.api.Node
+import net.luckperms.api.LuckPermsProvider
+import net.luckperms.api.node.Node
+import net.luckperms.api.node.NodeEqualityPredicate
 import org.bukkit.Bukkit
 import java.time.Duration
 import java.time.Instant
@@ -90,25 +91,24 @@ class ChannelData(val owner: UUID, val lock: ReentrantReadWriteLock) {
     }
 
     private fun negatedNode(permission: String, duration : Duration? = null) : Node {
-        val node = lucko().nodeFactory.newBuilder(permission).setNegated(true)
-        duration?.let{ node.setExpiry(Instant.now().plus(it).epochSecond) }
+        val node = lucko().nodeBuilderRegistry.forPermission().permission(permission).negated(true)
+        duration?.let{ node.expiry(Instant.now().plus(it).epochSecond) }
         return node.build()
     }
 
     private fun saveOnUser(node: Node, remove : Boolean = false){
         val api = lucko()
-        val user = api.getUser(owner)!!
-        if(remove) user.unsetPermission(node) else user.setPermission(node)
+        val user = api.userManager.getUser(owner)!!
+        if(remove) user.data().remove(node) else user.data().add(node)
         api.userManager.saveUser(user)
     }
 
     private fun isNegated(permission: String) : Boolean{
-        return lucko().getUser(owner)!!.permissions.stream()
-            .filter(Node::isNegated)
-            .anyMatch { n->n.permission == permission }
+        val node = lucko().nodeBuilderRegistry.forPermission().permission(permission).build()
+        return !lucko().userManager.getUser(owner)!!.data().contains(node, NodeEqualityPredicate.IGNORE_EXPIRY_TIME).asBoolean()
     }
 
-    private fun lucko() = LuckPerms.getApi()
+    private fun lucko() = LuckPermsProvider.get()
 
     fun getRemainingCooldown(channel: Channel) : Duration {
         var ins = cooldowns[channel.cmd] ?: return Duration.ZERO

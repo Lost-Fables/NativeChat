@@ -5,10 +5,13 @@ import co.lotc.core.bukkit.wrapper.BukkitSender
 import co.lotc.core.command.brigadier.TooltipProvider
 import com.google.common.collect.Multimap
 import com.google.common.collect.MultimapBuilder
+import jdk.nashorn.internal.runtime.regexp.joni.constants.NodeType
 import me.lotc.chat.NativeChat
 import me.lotc.chat.ProxiedSender
-import me.lucko.luckperms.LuckPerms
-import me.lucko.luckperms.api.User
+import net.luckperms.api.LuckPermsProvider
+import net.luckperms.api.model.user.User
+import net.luckperms.api.node.NodeEqualityPredicate
+import net.luckperms.api.node.types.MetaNode
 import net.md_5.bungee.api.ChatColor
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -49,11 +52,11 @@ class Chatter(player: Player) {
 
 
     fun saveSettings(){
-        val api = LuckPerms.getApi()
-        val user = api.getUser(uuid)
+        val api = LuckPermsProvider.get()
+        val user = api.userManager.getUser(uuid)
 
         user?: throw IllegalStateException("saving Chatter settings but no LuckPerms for $uuid")
-        user.clearMatching { n->n.isMeta && n.meta.key.startsWith("rp_") }
+        user.data().clear { n->n.key.startsWith("rp_") }
         lock.read {
             for(chan in channels.subscribedChannels)
                 if(!chan.isPermanent) metaNode(user, "rp_channel", chan.cmd)
@@ -71,21 +74,20 @@ class Chatter(player: Player) {
     }
 
     private fun metaNode(user: User, key: String, value: String, default: String? = null) {
-        if(value != default) user.setPermission(LuckPerms.getApi().nodeFactory.makeMetaNode(key,value).build())
+        if(value != default) user.data().add(LuckPermsProvider.get().nodeBuilderRegistry.forMeta().key(key).value(value).build())
     }
 
     fun loadSettings(){
         //Doesn't need a lock: Only called onJoin when object not yet exposed to other threads
         val chatManager = NativeChat.get().chatManager
 
-        val user = LuckPerms.getApi().getUser(uuid)
+        val user = LuckPermsProvider.get().userManager.getUser(uuid)
         user?: throw IllegalStateException("loading Chatter settings but no LuckPerms for $uuid")
         @Suppress("UnstableApiUsage")
         val settings = MultimapBuilder.hashKeys().arrayListValues().build<String, String>()
 
         //Go through LuckPerms to find all the meta nodes that are RPEngine settings nodes
-         user.allNodes.stream().filter { it.isMeta }.filter{ it.value }.filter{it.isPermanent}.filter{ it.appliesGlobally() }
-            .map { it.meta }.filter { it.key.startsWith("rp_") }.forEach { settings.put(it.key,it.value) }
+         user.nodes.stream().filter { it.key.startsWith("rp_") }.forEach { settings.put(it.key, it.value.toString()) }
 
         settings["rp_channel"].mapNotNull { chatManager.getByAlias(it) }
             .filter { player.hasPermission(it.permission) }
