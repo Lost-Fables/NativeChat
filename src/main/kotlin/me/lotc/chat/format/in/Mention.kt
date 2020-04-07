@@ -3,13 +3,11 @@ package me.lotc.chat.format.`in`
 import me.lotc.chat.NativeChat
 import me.lotc.chat.channel.Channel
 import me.lotc.chat.channel.GlobalChannel
-import me.lotc.chat.depend.ArcheBridge
 import me.lotc.chat.message.Message
 import me.lotc.chat.message.Text
 import me.lotc.chat.user.chat
-import net.md_5.bungee.api.ChatColor.*
 import org.bukkit.Bukkit
-import org.bukkit.entity.Player
+import net.md_5.bungee.api.ChatColor
 
 class Mention(val channel: Channel) : InFormatter {
     override fun format(message: Message) {
@@ -33,7 +31,7 @@ class Mention(val channel: Channel) : InFormatter {
 
             val asPing = c.substring(0, apenstaartje) + pingedChannel.formattedTitle
             val newName = Text(asPing, color = pingedChannel.color)
-            newName.tooltip("${GRAY}Can be pinged with ${pingedChannel.color}@${pingedChannel.cmd}")
+            newName.tooltip("${ChatColor.GRAY}Can be pinged with ${pingedChannel.color}@${pingedChannel.cmd}")
             return newName
         }
 
@@ -42,7 +40,7 @@ class Mention(val channel: Channel) : InFormatter {
         pinged?: return rawName
         if(pinged.chat.isMentionable && pinged.chat.channels.isSubscribed(channel)){
             val asPing = c.substring(0, apenstaartje) + pinged.name
-            val newName = Text(asPing, color=DARK_AQUA)
+            val newName = Text(asPing, color=ChatColor.DARK_AQUA)
             newName.suggests("/msg ${asPing.substring(1)} ")
             msg.context["mention:${pinged.uniqueId}"] = true
             return newName

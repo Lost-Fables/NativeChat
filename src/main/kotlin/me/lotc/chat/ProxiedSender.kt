@@ -36,8 +36,6 @@ class ProxiedSender(private val username: String, private val user: User) : Send
     override fun hasPermission(permission: String?): Boolean {
         permission?:return true
 
-        val userManager = LuckPermsProvider.get().userManager
-
         val player = NativeChat.get().server.getPlayer(uniqueId)
         return (player != null && player.hasPermission(permission))
     }

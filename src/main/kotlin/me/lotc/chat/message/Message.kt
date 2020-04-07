@@ -35,13 +35,13 @@ class Message(val sender: Sender, initialText: String) {
         return content.last.endsWith(suffix)
     }
 
-    fun contains(middle: String, ignoreCase : Boolean = false) : Boolean {
+    fun contains(middle: String, ignoreCase: Boolean = false) : Boolean {
         return content.stream().anyMatch { it.content.contains(middle, ignoreCase)}
     }
 
-    fun prefixToRawText() = prefixes.map { it.content }.joinToString("")
+    fun prefixToRawText() = prefixes.joinToString("") { it.content }
 
-    fun toRawText() = content.map { it.content }.joinToString("")
+    fun toRawText() = content.joinToString("") { it.content }
 
     fun transform(regex: String, transformer : (initial: Text) -> Text) {
         val newContent = LinkedList<Text>()

@@ -5,7 +5,6 @@ import me.lotc.chat.user.chat
 import co.lotc.core.bukkit.util.Run
 import co.lotc.core.bukkit.wrapper.BukkitSender
 import co.lotc.core.util.Context
-import com.google.common.collect.Iterables
 import me.lotc.chat.BungeeListener
 import me.lotc.chat.NativeChat
 import me.lotc.chat.format.`in`.InFormatter
@@ -19,12 +18,10 @@ import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import com.google.common.io.ByteStreams
 import me.lotc.chat.BungeeListener.Intent.*
 import me.lotc.chat.depend.OmniBridge
 import net.md_5.bungee.api.chat.TextComponent
 import net.md_5.bungee.chat.ComponentSerializer
-import java.time.Instant
 
 
 interface Channel {
@@ -72,9 +69,8 @@ interface Channel {
 
     @JvmDefault
     fun send(message: Message, builtMessage: Pair<Array<BaseComponent>,Array<BaseComponent>>) {
-        val pair = builtMessage
-        sendToNetwork(message.sender, pair.first, pair.second)
-        sendComposed(pair.first, pair.second, message.sender, getReceivers(message), message.context)
+        sendToNetwork(message.sender, builtMessage.first, builtMessage.second)
+        sendComposed(builtMessage.first, builtMessage.second, message.sender, getReceivers(message), message.context)
     }
 
     fun sendComposed(preamble: Array<BaseComponent>, content: Array<BaseComponent>,
