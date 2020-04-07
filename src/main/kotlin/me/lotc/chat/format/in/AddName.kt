@@ -15,7 +15,7 @@ class AddName(private val displayName : Boolean) : InFormatter {
 
         val p = message.player
         if(displayName){
-            name = if(Bukkit.getPluginManager().isPluginEnabled("RPPersonas") && p != null) RPPersonas.get().personaHandler.getLoadedPersona(p).nickName
+            name = if(Bukkit.getPluginManager().isPluginEnabled("RPPersonas") && p != null) RPPersonas.get().personaHandler.getLoadedPersona(p).chatName
             else p?.displayName ?: name
         }
 
