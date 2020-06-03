@@ -24,8 +24,7 @@ class AddName(private val displayName : Boolean) : InFormatter {
 
         val new = false; //RPPersonasBridge.isEnabled && RPPersonasBridge.isNew(p)
 
-        val color = if(new) ChatColor.LIGHT_PURPLE else ChatColor.DARK_GRAY
-        val continuum = if(new) "\n${ChatColor.LIGHT_PURPLE}${ChatColor.ITALIC}Player is new" else ""
+        val color = ChatColor.DARK_GRAY
         val format = Text(name, color = color)
 
         lateinit var hover : String
@@ -39,7 +38,7 @@ class AddName(private val displayName : Boolean) : InFormatter {
         }
 
         format.click = click
-        format.hover = MessageUtil.hoverEvent(hover+continuum)
+        format.hover = MessageUtil.hoverEvent(hover)
 
         message.prefixes.addLast(format)
         message.prefixes.addLast(Text(": ", color=ChatColor.DARK_GRAY))
