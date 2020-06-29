@@ -101,7 +101,7 @@ class Chatter(player: Player) {
         if("rp_focus" in settings) channels.channel = chatManager.getByAlias(settings["rp_focus"][0]) ?: channel
         if(channel !in channels.subscribedChannels) channels.subscribedChannels.add(channel)
 
-        if("rp_emotecolor" in settings) emoteColor = ChatColor.valueOf(settings["rp_emotecolor"][0])
+        if("rp_emotecolor" in settings) emoteColor = ChatColor.of(settings["rp_emotecolor"][0])
         if("rp_emotestyle" in settings) emoteStyle = EmoteStyle.valueOf(settings["rp_emotestyle"][0])
 
         if("rp_timestamps" in settings) wantsTimestamps = settings["rp_timestamps"][0]!!.toBoolean()

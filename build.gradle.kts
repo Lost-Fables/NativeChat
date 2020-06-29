@@ -29,7 +29,7 @@ dependencies {
     compileOnly("com.comphenix.protocol:ProtocolLib:4.5.1")
     compileOnly("co.lotc:tythan-bukkit:0.7.3")
     compileOnly("net.luckperms:api:5.1")
-    compileOnly("com.destroystokyo.paper:paper-api:1.15.1-R0.1-SNAPSHOT")
+    compileOnly("com.destroystokyo.paper:paper-api:1.16.1-R0.1-SNAPSHOT")
     compileOnly("net.korvic:rppersonas:1.13.2-R0.1")
     compile(kotlin("stdlib-jdk8"))
 }

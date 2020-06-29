@@ -8,8 +8,8 @@ class YamlChannelBuilder(tagCandidate: String, private val c: ConfigurationSecti
     private val tag = c.getString("tag", tagCandidate)!!
     private val title = c.getString("title", tagCandidate)!!
     private val cmd = c.getString("cmd", tagCandidate)!!.toLowerCase()
-    private val color = ChatColor.valueOf(c.getString("color", "DARK_GRAY")!!)
-    private val bracketColor = ChatColor.valueOf(c.getString("bracketcolor", color.name)!!)
+    private val color = ChatColor.of(c.getString("color", "DARK_GRAY")!!)
+    private val bracketColor = ChatColor.of(c.getString("bracketcolor", color.name)!!)
     private val cooldown = c.getInt("cooldown", 0)
 
     constructor(c: ConfigurationSection) : this(c.name, c)
@@ -50,7 +50,7 @@ class YamlChannelBuilder(tagCandidate: String, private val c: ConfigurationSecti
     }
 
     fun asBroadcastChannel() : BroadcastChannel {
-        val textColor = ChatColor.valueOf(c.getString("textcolor", "GRAY")!!)
+        val textColor = ChatColor.of(c.getString("textcolor", "GRAY")!!)
         val signName = c.getBoolean("signname", false)
         return BroadcastChannel(tag, title, cmd, color, bracketColor, textColor, signName)
     }
