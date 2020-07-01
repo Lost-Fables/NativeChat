@@ -26,15 +26,19 @@ object FocusListener {
                     val focus = event.player.chat.focus
 
                     val chat = event.packet.chatComponents.read(0)?:return
-                    val msg = ComponentSerializer.parse(chat.json)
+                    try {
+                        val msg = ComponentSerializer.parse(chat.json)
 
-                    focus.acceptSystem(msg)
+                        focus.acceptSystem(msg)
 
-                    val txt = BaseComponent.toPlainText(*msg)
+                        val txt = BaseComponent.toPlainText(*msg)
 
-                    if(!txt.startsWith("Error: ") && !focus.willAcceptSystem()) {
-                        event.isCancelled = true
-                        event.player.sendActionBar("${GRAY}Missed message in$LIGHT_PURPLE System")
+                        if (!txt.startsWith("Error: ") && !focus.willAcceptSystem()) {
+                            event.isCancelled = true
+                            event.player.sendActionBar("${GRAY}Missed message in$LIGHT_PURPLE System")
+                        }
+                    } catch (npe: NullPointerException) {
+                        plugin.logger.warning("Failed to parse chat.json. Likely a Bungee chat issue. If messages are getting eaten, look into this.")
                     }
                 }
             }
