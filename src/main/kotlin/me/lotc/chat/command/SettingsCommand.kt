@@ -32,11 +32,11 @@ class SettingsCommand : BaseCommand() {
 
     @Cmd(value="Set your emote color", permission = "chat.emotecolor")
     fun emotecolor(p: Player, color: ChatColor){
-        val alloweds = setOf(BLUE, DARK_BLUE, RED, YELLOW, GOLD, AQUA, GREEN, DARK_GRAY, DARK_GREEN, DARK_RED, DARK_AQUA, DARK_PURPLE, LIGHT_PURPLE)
+        val denieds = setOf(BOLD, ITALIC, MAGIC, UNDERLINE, STRIKETHROUGH, RESET)
         val col = color.name.toLowerCase().replace('_',' ').capitalize()
-        validate(color in alloweds, "This is not an allowed color for emotes:$WHITE $col")
+        validate(color !in denieds, "This is not an allowed color for emotes:$color $col")
         p.chat.emoteColor = color
-        msg("${GOLD}Set your emote color to:$WHITE $col")
+        msg("${GOLD}Set your emote color to:$color $col")
     }
 
     @Cmd("toggle your timestamps setting on messages")
