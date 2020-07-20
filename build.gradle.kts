@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "me.lotc"
-version = "1.16.0.2"
+version = "1.16.0.3"
 
 repositories {
     /*maven{
