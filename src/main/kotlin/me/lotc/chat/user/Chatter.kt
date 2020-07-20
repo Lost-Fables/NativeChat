@@ -1,22 +1,24 @@
 package me.lotc.chat.user
 
 import co.lotc.core.agnostic.Sender
+import co.lotc.core.bukkit.util.PlayerUtil
 import co.lotc.core.bukkit.wrapper.BukkitSender
 import co.lotc.core.command.brigadier.TooltipProvider
 import com.google.common.collect.Multimap
 import com.google.common.collect.MultimapBuilder
-import jdk.nashorn.internal.runtime.regexp.joni.constants.NodeType
 import me.lotc.chat.NativeChat
 import me.lotc.chat.ProxiedSender
+import net.luckperms.api.LuckPerms
 import net.luckperms.api.LuckPermsProvider
 import net.luckperms.api.model.user.User
-import net.luckperms.api.node.NodeEqualityPredicate
-import net.luckperms.api.node.types.MetaNode
+import net.luckperms.api.node.Node
 import net.md_5.bungee.api.ChatColor
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.util.*
+import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantReadWriteLock
+import java.util.function.BiConsumer
 import kotlin.concurrent.read
 import kotlin.concurrent.write
 import kotlin.reflect.KProperty
@@ -43,7 +45,7 @@ class Chatter(player: Player) {
     val continuity = StringBuilder()
     val focus = Focus(uuid)
 
-    var emoteColor by Lockable(lock, ChatColor.YELLOW)
+    var emoteColor: ChatColor by Lockable(lock, ChatColor.YELLOW)
     var wantsTimestamps by Lockable(lock, false)
     var emoteStyle by Lockable(lock, EmoteStyle.QUOTATIONS)
     var correctPunctuation by Lockable(lock, true)
@@ -52,42 +54,59 @@ class Chatter(player: Player) {
 
 
     fun saveSettings(){
-        val api = LuckPermsProvider.get()
-        val user = api.userManager.getUser(uuid)
+        val provider = Bukkit.getServicesManager().getRegistration(LuckPerms::class.java)
+        provider?: throw IllegalStateException("saving Chatter settings but no LuckPerms for $uuid")
 
-        user?: throw IllegalStateException("saving Chatter settings but no LuckPerms for $uuid")
-        user.data().clear { n->n.key.startsWith("rp_") }
-        lock.read {
-            for(chan in channels.subscribedChannels)
-                if(!chan.isPermanent) metaNode(user, "rp_channel", chan.cmd)
+        val api = provider.provider
+        api.userManager.savePlayerData(uuid, PlayerUtil.getPlayerName(uuid))
+        val userFuture = api.userManager.loadUser(uuid)
+        userFuture.whenCompleteAsync(BiConsumer { user, throwable ->
+            if (throwable != null) {
+                return@BiConsumer
+            }
+            user.data().clear { n->n.key.startsWith("meta.rp_") }
+            lock.read {
+                for(chan in channels.subscribedChannels)
+                    if(!chan.isPermanent) metaNode(user, "rp_channel", chan.cmd)
 
-            metaNode(user, "rp_focus", channel.cmd)
-            metaNode(user, "rp_emotecolor", emoteColor.name, "YELLOW")
-            metaNode(user, "rp_emotestyle", emoteStyle.name, "QUOTATIONS")
+                metaNode(user, "rp_focus", channel.cmd)
+                metaNode(user, "rp_emotecolor", emoteColor.name, "YELLOW")
+                metaNode(user, "rp_emotestyle", emoteStyle.name, "QUOTATIONS")
 
-            metaNode(user, "rp_timestamps", wantsTimestamps.toString(), "false")
-            metaNode(user, "rp_punctuate", correctPunctuation.toString(), "true")
-            metaNode(user, "rp_mention", isMentionable.toString(), "true")
-            metaNode(user, "rp_redirect", shouldRedirect.toString(), "true")
-        }
-        api.userManager.saveUser(user)
+                metaNode(user, "rp_timestamps", wantsTimestamps.toString(), "false")
+                metaNode(user, "rp_punctuate", correctPunctuation.toString(), "true")
+                metaNode(user, "rp_mention", isMentionable.toString(), "true")
+                metaNode(user, "rp_redirect", shouldRedirect.toString(), "true")
+            }
+            api.userManager.saveUser(user)
+            api.userManager.cleanupUser(user)
+        }, Executor { runnable: Runnable? -> Bukkit.getScheduler().runTask(NativeChat.get(), runnable!!) })
     }
 
     private fun metaNode(user: User, key: String, value: String, default: String? = null) {
-        if(value != default) user.data().add(LuckPermsProvider.get().nodeBuilderRegistry.forMeta().key(key).value(value).build())
+        if(value != default) user.data().add(Node.builder("meta.$key.$value").build())
     }
 
     fun loadSettings(){
         //Doesn't need a lock: Only called onJoin when object not yet exposed to other threads
         val chatManager = NativeChat.get().chatManager
 
-        val user = LuckPermsProvider.get().userManager.getUser(uuid)
+        val provider = Bukkit.getServicesManager().getRegistration(LuckPerms::class.java)
+        provider?: throw IllegalStateException("saving Chatter settings but no LuckPerms")
+
+        val api = provider.provider
+        val user = api.userManager.getUser(uuid)
         user?: throw IllegalStateException("loading Chatter settings but no LuckPerms for $uuid")
         @Suppress("UnstableApiUsage")
         val settings = MultimapBuilder.hashKeys().arrayListValues().build<String, String>()
 
         //Go through LuckPerms to find all the meta nodes that are RPEngine settings nodes
-         user.nodes.stream().filter { it.key.startsWith("rp_") }.forEach { settings.put(it.key, it.value.toString()) }
+         user.nodes.stream().filter { it.key.startsWith("meta.rp_") }.forEach {
+             val split = it.key.split(".")
+             if (split.size >= 2) {
+                 settings.put(split[1], split[2])
+             }
+         }
 
         settings["rp_channel"].mapNotNull { chatManager.getByAlias(it) }
             .filter { player.hasPermission(it.permission) }
