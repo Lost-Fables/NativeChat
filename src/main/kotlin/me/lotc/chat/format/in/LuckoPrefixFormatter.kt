@@ -1,5 +1,6 @@
 package me.lotc.chat.format.`in`
 
+import co.lotc.core.bukkit.util.ParseUtil
 import me.lotc.chat.message.Message
 import me.lotc.chat.message.Text
 import net.luckperms.api.LuckPermsProvider
@@ -21,7 +22,7 @@ class LuckoPrefixFormatter : InFormatter {
         val prefix = user.cachedData.getMetaData(QueryOptions.defaultContextualOptions()).prefix
 
         prefix?:return
-        val colorful = ChatColor.translateAlternateColorCodes('&', prefix.toString()).trim()
+        val colorful = ParseUtil.parseWithHexColors('&', prefix).trim()
         if(colorful.isBlank()) return
         if(ChatColor.stripColor(colorful)!!.isNotEmpty()) {
             message.prefixes.addFirst(Text(" "))

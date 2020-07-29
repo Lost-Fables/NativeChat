@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "me.lotc"
-version = "1.16.0.3"
+version = "1.16.0.4"
 
 repositories {
     /*maven{
@@ -27,7 +27,7 @@ repositories {
 dependencies {
     compileOnly("net.lordofthecraft:OmniscienceAPI:1.0.6")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.6.0-SNAPSHOT")
-    compileOnly("co.lotc:tythan-bukkit:0.7.5")
+    compileOnly("co.lotc:tythan-bukkit:0.7.6")
     compileOnly("net.luckperms:api:5.1")
     compileOnly("com.destroystokyo.paper:paper-api:1.16.1-R0.1-SNAPSHOT")
     compileOnly("net.korvic:rppersonas:1.16.0.4")
